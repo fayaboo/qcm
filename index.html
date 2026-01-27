@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>QCM Conducteur Ferroviaire</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Feuille de style -->
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<!-- EN-TÊTE -->
+<header class="app-header">
+  🚆 QCM Conducteur Ferroviaire
+</header>
+
+<main class="app">
+  <div class="card">
+
+    <!-- ÉCRAN CHOIX DU THÈME -->
+    <div id="theme-screen">
+      <h2>Choisir un thème</h2>
+      <div id="themes"></div>
+      <button id="start" class="primary">Commencer le QCM</button>
+    </div>
+
+    <!-- ÉCRAN QUIZ -->
+    <div id="quiz-screen" style="display:none">
+
+      <!-- Barre infos -->
+      <div class="card-header">
+        <span id="progress"></span>
+        <span id="timer"></span>
+      </div>
+
+      <!-- Barre de progression -->
+      <div class="progress-bar">
+        <div id="progress-fill"></div>
+      </div>
+
+      <!-- Question -->
+      <div id="quiz"></div>
+
+      <!-- Navigation -->
+      <div class="card-footer">
+        <button id="prev">Précédent</button>
+        <button id="next" class="primary">Suivant</button>
+      </div>
+
+      <!-- Bouton fin -->
+      <button id="submit" class="submit" style="display:none">
+        Terminer le quiz
+      </button>
+
+      <!-- Résultat -->
+      <div id="result"></div>
+
+      <!-- Actions de fin -->
+      <div id="end-actions" style="display:none">
+        <button id="restart" class="primary">🔁 Recommencer</button>
+        <button id="show-correction">✅ Voir la correction</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Script principal -->
+<script src="script.js?v=1"></script>
+</body>
+</html>

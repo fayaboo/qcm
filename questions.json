@@ -1,0 +1,127 @@
+
+[
+  {
+    "theme": "Signalisation",
+    "type": "single",
+    "question": "Quel signal impose l’arrêt absolu du train ?",
+    "options": ["Carré", "Sémaphore", "Avertissement", "Voie libre"],
+    "answer": ["Carré"]
+  },
+  {
+    "theme": "Signalisation",
+    "type": "single",
+    "question": "Un signal Sémaphore fermé impose :",
+    "options": ["Arrêt absolu", "Marche à vue", "Ralentissement 30", "Annonce d’arrêt"],
+    "answer": ["Marche à vue"]
+  },
+  {
+    "theme": "Signalisation",
+    "type": "order",
+    "question": "Remettre dans l’ordre la séquence normale des signaux",
+    "options": ["Carré", "Sémaphore", "Avertissement", "Voie libre"],
+    "answer": ["Voie libre", "Avertissement", "Sémaphore", "Carré"]
+  },
+
+  {
+    "theme": "Sécurité",
+    "type": "single",
+    "question": "Quel dispositif contrôle la vigilance du conducteur ?",
+    "options": ["VACMA", "KVB", "Radio sol-train", "Régulateur"],
+    "answer": ["VACMA"]
+  },
+  {
+    "theme": "Sécurité",
+    "type": "multiple",
+    "question": "Quels systèmes participent à la sécurité des circulations ?",
+    "options": ["KVB", "VACMA", "Climatisation", "Signalisation"],
+    "answer": ["KVB", "VACMA", "Signalisation"]
+  },
+  {
+    "theme": "Sécurité",
+    "type": "order",
+    "question": "Actions à effectuer après un arrêt d’urgence",
+    "options": ["Informer la régulation", "Identifier la cause", "Sécuriser le train", "Reprise de la marche"],
+    "answer": ["Sécuriser le train", "Identifier la cause", "Informer la régulation", "Reprise de la marche"]
+  },
+
+  {
+    "theme": "Freinage",
+    "type": "single",
+    "question": "Quelle est la pression normale de la conduite générale ?",
+    "options": ["4 bars", "4,5 bars", "5 bars", "6 bars"],
+    "answer": ["5 bars"]
+  },
+  {
+    "theme": "Freinage",
+    "type": "single",
+    "question": "Une rupture de la conduite générale provoque :",
+    "options": ["Freinage d’urgence", "Aucune action", "Isolement du frein", "Coupure traction"],
+    "answer": ["Freinage d’urgence"]
+  },
+  {
+    "theme": "Freinage",
+    "type": "multiple",
+    "question": "Quels types de frein peuvent être utilisés en marche normale ?",
+    "options": ["Frein pneumatique", "Frein électrique", "Frein à main", "Frein rhéostatique"],
+    "answer": ["Frein pneumatique", "Frein électrique", "Frein rhéostatique"]
+  },
+
+  {
+    "theme": "Réglementation",
+    "type": "single",
+    "question": "Quelle est la priorité absolue du conducteur ?",
+    "options": ["Ponctualité", "Sécurité", "Confort voyageurs", "Économie d’énergie"],
+    "answer": ["Sécurité"]
+  },
+  {
+    "theme": "Réglementation",
+    "type": "single",
+    "question": "En cas de doute sur un signal, le conducteur doit :",
+    "options": ["Continuer prudemment", "S’arrêter", "Accélérer", "Demander après"],
+    "answer": ["S’arrêter"]
+  },
+  {
+    "theme": "Réglementation",
+    "type": "order",
+    "question": "Procédure avant franchissement d’un signal fermé autorisé",
+    "options": ["Observation de la voie", "Arrêt du train", "Application de la marche à vue", "Autorisation réglementaire"],
+    "answer": ["Arrêt du train", "Autorisation réglementaire", "Observation de la voie", "Application de la marche à vue"]
+  },
+
+  {
+    "theme": "Exploitation",
+    "type": "single",
+    "question": "Quelle est la vitesse maximale en marche à vue ?",
+    "options": ["10 km/h", "20 km/h", "30 km/h", "40 km/h"],
+    "answer": ["30 km/h"]
+  },
+  {
+    "theme": "Exploitation",
+    "type": "multiple",
+    "question": "Quels facteurs peuvent dégrader l’adhérence ?",
+    "options": ["Pluie", "Feuilles mortes", "Vent", "Givre"],
+    "answer": ["Pluie", "Feuilles mortes", "Givre"]
+  },
+  {
+    "theme": "Exploitation",
+    "type": "order",
+    "question": "Étapes d’un départ normal en gare",
+    "options": ["Fermeture des portes", "Mise en traction", "Autorisation de départ", "Essai de frein"],
+    "answer": ["Autorisation de départ", "Fermeture des portes", "Essai de frein", "Mise en traction"]
+  },
+
+  {
+    "theme": "Matériel",
+    "type": "single",
+    "question": "À quoi sert le disjoncteur principal ?",
+    "options": ["Protéger l’installation électrique", "Commander le frein", "Alimenter la radio", "Ouvrir les portes"],
+    "answer": ["Protéger l’installation électrique"]
+  },
+  {
+    "theme": "Matériel",
+    "type": "single",
+    "question": "Le frein rhéostatique transforme l’énergie en :",
+    "options": ["Électricité", "Chaleur", "Air comprimé", "Pression hydraulique"],
+    "answer": ["Chaleur"]
+  }
+]

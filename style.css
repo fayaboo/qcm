@@ -1,0 +1,276 @@
+/* ===== BASE ===== */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: white;
+}
+
+/* ===== LAYOUT ===== */
+.app-header {
+  background: #020617;
+  padding: 16px;
+  font-weight: bold;
+}
+
+.app {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.card {
+  background: #020617;
+  max-width: 760px;
+  width: 100%;
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* ===== THEME ===== */
+#themes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.theme-option {
+  padding: 14px;
+  border-radius: 10px;
+  background: #020617;
+  border-left: 5px solid #38bdf8;
+  cursor: pointer;
+}
+
+.theme-option.selected {
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.4);
+}
+
+/* ===== HEADER ===== */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  color: #38bdf8;
+  margin-bottom: 10px;
+}
+
+/* ===== PROGRESSION ===== */
+.progress-bar {
+  height: 8px;
+  background: #1e293b;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+  transition: width 0.3s ease;
+}
+
+/* ===== QUESTION ===== */
+.quiz-question {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ===== OPTIONS ===== */
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-option {
+  padding: 14px;
+  border-radius: 12px;
+  background: #020617;
+  border-left: 5px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.quiz-option.single {
+  border-left-color: #38bdf8;
+}
+
+.quiz-option.multiple {
+  border-left-color: #22c55e;
+}
+
+.quiz-option.selected {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
+}
+
+.quiz-option:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+/* ===== ORDER ===== */
+.order-item {
+  padding: 14px;
+  background: #020617;
+  border: 2px dashed #475569;
+  border-radius: 12px;
+  cursor: grab;
+  margin-bottom: 10px;
+}
+
+.order-item.dragging {
+  opacity: 0.6;
+  transform: scale(1.05);
+}
+
+/* ===== NAV ===== */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #2563eb;
+  color: white;
+}
+
+button.submit {
+  width: 100%;
+  margin-top: 24px;
+  background: #16a34a;
+  color: white;
+}
+
+/* ===== FIN ===== */
+#result {
+  margin-top: 24px;
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#end-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+/* ==================================================
+   VERSION MOBILE
+================================================== */
+
+@media (max-width: 768px) {
+
+  /* Layout général */
+  .app {
+    padding: 16px 8px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  /* En-tête */
+  .app-header {
+    font-size: 16px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  /* Thèmes */
+  .theme-option {
+    padding: 16px;
+    font-size: 16px;
+  }
+
+  /* Question */
+  .quiz-question {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  /* Réponses */
+  .quiz-option {
+    padding: 16px;
+    font-size: 16px;
+  }
+
+  /* Barre de progression */
+  .progress-bar {
+    height: 10px;
+  }
+
+  /* Navigation → boutons empilés */
+  .card-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card-footer button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  /* Bouton fin */
+  button.submit {
+    padding: 16px;
+    font-size: 16px;
+  }
+
+  /* Résultat */
+  #result {
+    font-size: 22px;
+  }
+
+  /* Actions de fin */
+  #end-actions button {
+    padding: 16px;
+    font-size: 16px;
+  }
+
+  /* Drag & Drop plus confortable */
+  .order-item {
+    padding: 16px;
+    font-size: 16px;
+  }
+}
+/* ===== ORDRE (CLICK / TAP) ===== */
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-item {
+  padding: 16px;
+  background: #020617;
+  border: 2px dashed #475569;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Élément sélectionné */
+.order-item.selected {
+  border-color: #38bdf8;
+  background: rgba(56,189,248,0.15);
+}
