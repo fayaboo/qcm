@@ -272,5 +272,18 @@ button.submit {
 /* Élément sélectionné */
 .order-item.selected {
   border-color: #38bdf8;
-  background: rgba(56,189,248,0.15);
+  background: rgba(56,189,248,0.25);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.4);
+  transform: scale(1.03);
+}
+.order-item {
+  touch-action: manipulation;
+}
+@keyframes swapFlash {
+  0%   { background: rgba(34,197,94,0.4); }
+  100% { background: #020617; }
+}
+
+.order-item.swapped {
+  animation: swapFlash 0.35s ease;
 }
