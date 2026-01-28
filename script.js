@@ -192,21 +192,18 @@ function activerOrdre() {
   document.querySelectorAll(".order-item").forEach(item => {
     item.onclick = () => {
 
-      // 1er clic → sélection
       if (!selectedItem) {
         selectedItem = item;
         item.classList.add("selected");
         return;
       }
 
-      // Clic sur le même → annuler
       if (selectedItem === item) {
         item.classList.remove("selected");
         selectedItem = null;
         return;
       }
 
-      // Échange des positions
       const list = item.parentNode;
       const item1 = selectedItem;
       const item2 = item;
@@ -215,11 +212,30 @@ function activerOrdre() {
       list.insertBefore(item1, item2);
       list.insertBefore(item2, next);
 
+      item1.classList.add("swapped");
+      item2.classList.add("swapped");
+
+      // 📳 VIBRATION MOBILE (ICI)
+      if (navigator.vibrate) {
+        navigator.vibrate(30);
+      }
+
+      setTimeout(() => {
+        item1.classList.remove("swapped");
+        item2.classList.remove("swapped");
+      }, 350);
+
       item1.classList.remove("selected");
       selectedItem = null;
+
+      // ✅ SAUVEGARDE IMMÉDIATE (FIX MOBILE)
+      reponses[index] =
+        [...document.querySelectorAll(".order-item")]
+          .map(e => e.textContent);
     };
   });
 }
+
 
 
 /* =========================================================
