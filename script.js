@@ -2,13 +2,47 @@
    VARIABLES GLOBALES
 ========================================================= */
 
-let allQuestions = [];     // Toutes les questions
-let questions = [];        // Questions du quiz courant
-let index = 0;             // Index question courante
-let reponses = {};         // Réponses utilisateur
-let temps = 1200;          // 20 minutes
-let themeChoisi = null;    // Thème sélectionné
-let timerInterval = null;  // Timer
+// Toutes les questions chargées depuis questions.json
+let allQuestions = [];
+
+// Questions du quiz en cours
+let questions = [];
+
+// Index de la question courante
+let index = 0;
+
+// Réponses utilisateur (clé = index question)
+let reponses = {};
+
+// Score final
+let scoreFinal = 0;
+
+// Temps restant (en secondes)
+let temps = 1200;
+
+// Thème sélectionné
+let themeChoisi = null;
+
+// Intervalle du timer
+let timerInterval = null;
+
+
+/* =========================================================
+   OUTILS
+========================================================= */
+
+/**
+ * Mélange un tableau (Fisher-Yates)
+ * → fiable, sans biais
+ */
+function melanger(tableau) {
+  const arr = [...tableau];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 
 /* =========================================================
@@ -25,13 +59,14 @@ fetch("questions.json")
 
 
 /* =========================================================
-   THÈMES
+   AFFICHAGE DES THÈMES
 ========================================================= */
 
 function afficherThemes() {
   const container = document.getElementById("themes");
   container.innerHTML = "";
 
+  // Récupération des thèmes uniques
   const themes = [...new Set(allQuestions.map(q => q.theme))];
 
   themes.forEach(theme => {
@@ -42,7 +77,7 @@ function afficherThemes() {
     container.appendChild(div);
   });
 
-  // Thème aléatoire
+  // Bouton aléatoire
   const random = document.createElement("div");
   random.className = "theme-option";
   random.textContent = "🎲 Aléatoire (toutes questions)";
@@ -69,18 +104,22 @@ document.getElementById("start").onclick = () => {
     return;
   }
 
-  // Sélection questions
-  if (themeChoisi === "ALEATOIRE") {
-    questions = [...allQuestions]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 20);
-  } else {
-    questions = allQuestions.filter(q => q.theme === themeChoisi);
-  }
+  // Sélection + mélange des questions
+  let baseQuestions =
+    themeChoisi === "ALEATOIRE"
+      ? melanger(allQuestions).slice(0, 20)
+      : melanger(allQuestions.filter(q => q.theme === themeChoisi));
 
-  // Reset état
+  // Mélange des réponses (sauf pour les questions ordre)
+  questions = baseQuestions.map(q => {
+    if (q.type === "order") return q;
+    return { ...q, options: melanger(q.options) };
+  });
+
+  // Réinitialisation
   index = 0;
   reponses = {};
+  scoreFinal = 0;
   temps = 1200;
 
   document.getElementById("theme-screen").style.display = "none";
@@ -102,13 +141,17 @@ function lancerTimer() {
   timerInterval = setInterval(() => {
     temps--;
     document.getElementById("timer").textContent = `⏱ ${temps}s`;
-    if (temps <= 0) terminerQCM();
+
+    if (temps <= 0) {
+      clearInterval(timerInterval);
+      terminerQCM();
+    }
   }, 1000);
 }
 
 
 /* =========================================================
-   AFFICHAGE DES QUESTIONS
+   AFFICHAGE D’UNE QUESTION
 ========================================================= */
 
 function afficherQuestion() {
@@ -116,12 +159,13 @@ function afficherQuestion() {
   const quiz = document.getElementById("quiz");
   quiz.innerHTML = "";
 
-  /* ===== QUESTION ORDRE ===== */
+  // ----- QUESTION ORDRE -----
   if (q.type === "order") {
     const ordre = reponses[index] || [...q.options];
 
     quiz.innerHTML = `
       <div class="quiz-question">${q.question}</div>
+      <div class="order-hint">👆 Tape sur 2 éléments pour les échanger</div>
       <div class="order-list">
         ${ordre.map(o => `<div class="order-item">${o}</div>`).join("")}
       </div>
@@ -131,7 +175,7 @@ function afficherQuestion() {
     return;
   }
 
-  /* ===== QUESTION SINGLE / MULTIPLE ===== */
+  // ----- SINGLE / MULTIPLE -----
   quiz.innerHTML = `
     <div class="quiz-question">${q.question}</div>
     <div class="quiz-options">
@@ -158,6 +202,7 @@ function activerSelection(question) {
     opt.onclick = () => {
       const val = opt.dataset.value;
 
+      // SINGLE
       if (question.type === "single") {
         document.querySelectorAll(".quiz-option")
           .forEach(o => o.classList.remove("selected"));
@@ -165,6 +210,7 @@ function activerSelection(question) {
         opt.classList.add("selected");
       }
 
+      // MULTIPLE
       if (question.type === "multiple") {
         reponses[index] ??= [];
         const pos = reponses[index].indexOf(val);
@@ -183,7 +229,7 @@ function activerSelection(question) {
 
 
 /* =========================================================
-   ORDRE — CLICK / TAP + ÉCHANGE (FIABLE MOBILE)
+   QUESTIONS ORDRE (CLICK / TAP – MOBILE SAFE)
 ========================================================= */
 
 function activerOrdre() {
@@ -192,43 +238,43 @@ function activerOrdre() {
   document.querySelectorAll(".order-item").forEach(item => {
     item.onclick = () => {
 
+      // 1er tap → sélection
       if (!selectedItem) {
         selectedItem = item;
         item.classList.add("selected");
         return;
       }
 
+      // Tap sur le même → annuler
       if (selectedItem === item) {
         item.classList.remove("selected");
         selectedItem = null;
         return;
       }
 
+      // Échange
       const list = item.parentNode;
-      const item1 = selectedItem;
-      const item2 = item;
-      const next = item1.nextSibling === item2 ? item1 : item1.nextSibling;
+      const a = selectedItem;
+      const b = item;
+      const next = a.nextSibling === b ? a : a.nextSibling;
 
-      list.insertBefore(item1, item2);
-      list.insertBefore(item2, next);
+      list.insertBefore(a, b);
+      list.insertBefore(b, next);
 
-      item1.classList.add("swapped");
-      item2.classList.add("swapped");
-
-      // 📳 VIBRATION MOBILE (ICI)
-      if (navigator.vibrate) {
-        navigator.vibrate(30);
-      }
+      // Feedback visuel + vibration
+      a.classList.add("swapped");
+      b.classList.add("swapped");
+      if (navigator.vibrate) navigator.vibrate(30);
 
       setTimeout(() => {
-        item1.classList.remove("swapped");
-        item2.classList.remove("swapped");
-      }, 350);
+        a.classList.remove("swapped");
+        b.classList.remove("swapped");
+      }, 300);
 
-      item1.classList.remove("selected");
+      a.classList.remove("selected");
       selectedItem = null;
 
-      // ✅ SAUVEGARDE IMMÉDIATE (FIX MOBILE)
+      // Sauvegarde immédiate
       reponses[index] =
         [...document.querySelectorAll(".order-item")]
           .map(e => e.textContent);
@@ -237,34 +283,17 @@ function activerOrdre() {
 }
 
 
-
-/* =========================================================
-   SAUVEGARDE ORDRE
-========================================================= */
-
-function sauvegarderReponse() {
-  const q = questions[index];
-  if (q.type === "order") {
-    reponses[index] =
-      [...document.querySelectorAll(".order-item")]
-        .map(e => e.textContent);
-  }
-}
-
-
 /* =========================================================
    NAVIGATION
 ========================================================= */
 
 document.getElementById("next").onclick = () => {
-  sauvegarderReponse();
   if (index < questions.length - 1) index++;
   afficherQuestion();
   updateUI();
 };
 
 document.getElementById("prev").onclick = () => {
-  sauvegarderReponse();
   if (index > 0) index--;
   afficherQuestion();
   updateUI();
@@ -277,25 +306,86 @@ document.getElementById("prev").onclick = () => {
 
 function terminerQCM() {
   clearInterval(timerInterval);
-  sauvegarderReponse();
+  scoreFinal = 0;
 
-  let score = 0;
   questions.forEach((q, i) => {
     const r = reponses[i] || [];
     if (r.length === q.answer.length &&
         q.answer.every(v => r.includes(v))) {
-      score++;
+      scoreFinal++;
     }
   });
 
-  document.getElementById("quiz").innerHTML = "";
-  document.getElementById("result").innerHTML =
-    `📊 Score final : <strong>${score}</strong> / ${questions.length}`;
+  const quiz = document.getElementById("quiz");
+  quiz.innerHTML = `
+    <div class="result-final">
+      📊 Résultat final<br>
+      <strong>${scoreFinal} / ${questions.length}</strong>
+    </div>
+  `;
 
   document.getElementById("end-actions").style.display = "flex";
   document.querySelector(".card-footer").style.display = "none";
-  document.getElementById("submit").style.display = "none";
+
+  setTimeout(() => {
+    quiz.scrollIntoView({ behavior: "smooth" });
+  }, 100);
 }
+
+document.getElementById("submit").onclick = terminerQCM;
+
+
+/* =========================================================
+   CORRECTION
+========================================================= */
+
+function afficherCorrection() {
+  const quiz = document.getElementById("quiz");
+  quiz.innerHTML = "";
+
+  questions.forEach((q, i) => {
+    const user = reponses[i] || [];
+
+    let html = `
+      <div class="correction-card">
+        <div class="quiz-question">${i + 1}. ${q.question}</div>
+    `;
+
+    if (q.type === "order") {
+      html += `
+        <div class="good">✅ Bon ordre</div>
+        ${q.answer.map(o => `<div class="order-item good">${o}</div>`).join("")}
+        <div class="bad">❌ Ton ordre</div>
+        ${user.map(o => `<div class="order-item bad">${o}</div>`).join("")}
+      `;
+    } else {
+      html += `<div class="quiz-options">`;
+      q.options.forEach(opt => {
+        let cls = "quiz-option";
+        if (q.answer.includes(opt)) cls += " good";
+        if (user.includes(opt) && !q.answer.includes(opt)) cls += " bad";
+        html += `<div class="${cls}">${opt}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+    quiz.innerHTML += html;
+  });
+
+  quiz.innerHTML += `
+    <div class="result-final">
+      📊 Résultat final<br>
+      <strong>${scoreFinal} / ${questions.length}</strong>
+    </div>
+  `;
+
+  setTimeout(() => {
+    quiz.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+}
+
+document.getElementById("show-correction").onclick = afficherCorrection;
 
 
 /* =========================================================
@@ -310,21 +400,20 @@ function updateUI() {
     index === questions.length - 1 ? "block" : "none";
 }
 
-document.getElementById("submit").onclick = terminerQCM;
-
 
 /* =========================================================
-   ACTIONS FIN
+   RESTART
 ========================================================= */
 
 document.getElementById("restart").onclick = () => {
   index = 0;
   reponses = {};
+  scoreFinal = 0;
   temps = 1200;
 
   document.getElementById("quiz-screen").style.display = "none";
   document.getElementById("theme-screen").style.display = "block";
-  document.getElementById("result").innerHTML = "";
+  document.getElementById("quiz").innerHTML = "";
   document.getElementById("end-actions").style.display = "none";
   document.querySelector(".card-footer").style.display = "flex";
 };
