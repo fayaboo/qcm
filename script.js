@@ -51,19 +51,21 @@ function melanger(tableau) {
 
 fetch("questions.json")
   .then(res => {
-    console.log("status:", res.status);
+    console.log("STATUS:", res.status);
     return res.json();
   })
   .then(data => {
-    console.log("data:", data);
-    allQuestions = data.questions;
+    console.log("DATA:", data);
+
+    // ✅ CORRECTION ICI
+    allQuestions = data;
+
     afficherThemes();
   })
   .catch(err => {
     console.error("ERREUR:", err);
     alert("Erreur chargement questions.json");
   });
-
 
 /* =========================================================
    AFFICHAGE DES THÈMES
