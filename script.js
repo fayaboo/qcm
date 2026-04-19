@@ -50,12 +50,19 @@ function melanger(tableau) {
 ========================================================= */
 
 fetch("questions.json")
-  .then(res => res.json())
+  .then(res => {
+    console.log("status:", res.status);
+    return res.json();
+  })
   .then(data => {
-    allQuestions = data;
+    console.log("data:", data);
+    allQuestions = data.questions;
     afficherThemes();
   })
-  .catch(() => alert("Erreur chargement questions.json"));
+  .catch(err => {
+    console.error("ERREUR:", err);
+    alert("Erreur chargement questions.json");
+  });
 
 
 /* =========================================================
