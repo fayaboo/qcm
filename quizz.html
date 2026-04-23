@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rail Révision">
+<meta name="theme-color" content="#0a0e14">
+<title>Rail Révision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --card: #111827;
+    --border: #1e2a3a;
+    --gold: #c9a84c;
+    --red: #e63946;
+    --teal: #2a9d8f;
+    --orange: #f4631a;
+    --purple: #7b5ea7;
+    --blue: #457b9d;
+    --text: #f3f4f6;
+    --muted: #6b7280;
+    --sub: #9ca3af;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); overflow: hidden; font-family: 'Source Sans 3', sans-serif; }
+  ::-webkit-scrollbar { display: none; }
+  input, textarea, button { font-family: inherit; -webkit-appearance: none; }
+  textarea { resize: none; }
+
+  #app {
+    max-width: 430px;
+    margin: 0 auto;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  #screen-wrap {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  #bottom-nav {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-shrink: 0;
+    padding-bottom: var(--safe-bot);
+  }
+  .nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 0 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; color: #4b5563; font-weight: 400; }
+  .nav-btn.active .nav-label { color: var(--gold); font-weight: 700; }
+  .nav-dot { width: 20px; height: 2px; background: var(--gold); border-radius: 2px; display: none; }
+  .nav-btn.active .nav-dot { display: block; }
+
+  /* HEADER */
+  .hd {
+    background: var(--bg);
+    border-bottom: 2px solid var(--gold);
+    padding: 14px 18px 10px;
+    padding-top: calc(14px + var(--safe-top));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hd-back { background: none; border: none; color: var(--gold); font-size: 28px; cursor: pointer; padding: 0 4px 0 0; line-height: 1; }
+  .hd-title { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+  .hd-sub { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; }
+  .label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .tag { background: var(--border); color: var(--sub); border-radius: 4px; padding: 2px 7px; font-size: 10px; display: inline-block; }
+
+  /* PROGRESS BAR */
+  .pbar-bg { background: var(--border); border-radius: 3px; height: 5px; }
+  .pbar-fg { border-radius: 3px; height: 5px; transition: width .4s ease; }
+
+  /* SCREENS */
+  .screen { background: var(--bg); min-height: 100%; padding-bottom: 20px; }
+
+  /* CATEGORY SCROLL */
+  .cat-scroll { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .cat-pill { flex-shrink: 0; border-radius: 20px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--sub); white-space: nowrap; }
+  .cat-pill.active { border: none; color: #0a0e14; }
+
+  /* BUTTONS */
+  .btn-gold { background: var(--gold); color: #0a0e14; border: none; border-radius: 12px; padding: 17px 0; font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; width: 100%; transition: opacity .15s; }
+  .btn-gold:active { opacity: .8; }
+  .btn-teal { background: #041a12; border: 2px solid var(--teal); border-radius: 12px; padding: 15px 0; font-size: 13px; font-weight: 700; color: #d1fae5; cursor: pointer; transition: opacity .15s; }
+  .btn-red  { background: #1f0a0b; border: 2px solid var(--red);  border-radius: 12px; padding: 15px 0; font-size: 13px; font-weight: 700; color: #fca5a5; cursor: pointer; transition: opacity .15s; }
+  .btn-gold2{ background: #1a1505; border: 2px solid var(--gold); border-radius: 12px; padding: 15px 0; font-size: 13px; font-weight: 700; color: var(--gold); cursor: pointer; transition: opacity .15s; }
+
+  /* ANSWER BOX */
+  .ans-box { background: #041a12; border: 1px solid var(--teal); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .ans-text { font-size: 15px; color: #d1fae5; line-height: 1.8; white-space: pre-line; }
+
+  /* INPUTS */
+  .inp { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--text); width: 100%; outline: none; }
+  .inp::placeholder { color: var(--muted); }
+
+  /* QUIZ CHOICES */
+  .choice { display: block; width: 100%; background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; color: var(--text); text-align: left; line-height: 1.5; cursor: pointer; transition: all .2s; }
+  .choice.correct { background: #041a12; border-color: var(--teal); color: #d1fae5; }
+  .choice.wrong   { background: #1f0a0b; border-color: var(--red);  color: #fca5a5; }
+
+  /* FLASH CARD */
+  .flash-card { border-radius: 18px; padding: 24px; min-height: 240px; cursor: pointer; transition: all .25s; display: flex; flex-direction: column; justify-content: space-between; }
+  .flash-q { background: var(--card); border: 2px solid var(--border); }
+  .flash-a { background: #041a12;     border: 2px solid var(--teal); }
+
+  .dots-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .three-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two-col  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .fiche-row { display: flex; align-items: flex-start; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; text-align: left; }
+  .dot-lvl { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; margin-left: 10px; }
+
+  .done-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; padding: 32px; text-align: center; }
+  .done-emoji { font-size: 64px; margin-bottom: 20px; }
+  .done-score { font-family: 'Oswald', sans-serif; font-size: 40px; color: var(--gold); }
+  .done-sub   { font-size: 15px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen-wrap"></div>
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-tab="home"   onclick="navTo('home')">  <span class="nav-icon">⊞</span><span class="nav-label">Accueil</span>   <span class="nav-dot"></span></button>
+    <button class="nav-btn"        data-tab="flash"  onclick="navTo('flash')"> <span class="nav-icon">🔄</span><span class="nav-label">Flashcards</span><span class="nav-dot"></span></button>
+    <button class="nav-btn"        data-tab="quiz"   onclick="navTo('quiz')">  <span class="nav-icon">⚡</span><span class="nav-label">Quiz</span>       <span class="nav-dot"></span></button>
+    <button class="nav-btn"        data-tab="fiches" onclick="navTo('fiches')"><span class="nav-icon">📚</span><span class="nav-label">Fiches</span>     <span class="nav-dot"></span></button>
+    <button class="nav-btn"        data-tab="add"    onclick="navTo('add')">   <span class="nav-icon">＋</span><span class="nav-label">Ajouter</span>    <span class="nav-dot"></span></button>
+  </nav>
+</div>
+
+<script>
+/* ══ DATA ══ */
+const CATS = [
+  { id:"all",            label:"Tout",         icon:"◈", color:"#c9a84c" },
+  { id:"signalisation",  label:"Signalisation", icon:"🚦", color:"#e63946" },
+  { id:"procedures",     label:"Procédures",    icon:"📋", color:"#2a9d8f" },
+  { id:"reglementation", label:"Réglements",    icon:"📜", color:"#c9a84c" },
+  { id:"urgences",       label:"Urgences",      icon:"🚨", color:"#f4631a" },
+  { id:"lgv",            label:"LGV",           icon:"🚄", color:"#7b5ea7" },
+  { id:"fret",           label:"Fret",          icon:"🚂", color:"#457b9d" },
+];
+
+let CARDS = [
+  {id:1,  cat:"signalisation",  q:"Que signifie un signal Carré (4 feux rouges) ?", a:"Arrêt absolu. Franchissement interdit en toutes circonstances sans autorisation écrite ou verbale spéciale. S'arrêter avant le signal et attendre les instructions du régulateur.", tags:["carré","arrêt absolu"]},
+  {id:2,  cat:"signalisation",  q:"Différence entre sémaphore et carré ?", a:"• Sémaphore (2 feux rouges horiz.) = arrêt relatif → franchissable après arrêt complet, marche à vue 30 km/h max si canton semble libre.\n• Carré (4 feux rouges) = arrêt absolu → franchissement interdit sans autorisation.", tags:["sémaphore","carré"]},
+  {id:3,  cat:"signalisation",  q:"Que signifie l'Avertissement (feu jaune) ?", a:"Le prochain signal est fermé. Réduire la vitesse pour s'arrêter avant le signal suivant. Adapter la vitesse à la distance disponible.", tags:["avertissement","jaune"]},
+  {id:4,  cat:"signalisation",  q:"Que signifie un feu vert clignotant ?", a:"Annonce un ralentissement à 60 km/h. La vitesse de 60 km/h doit être établie au signal de ralentissement suivant (jaune clignotant).", tags:["vert clignotant","60"]},
+  {id:5,  cat:"signalisation",  q:"Que signifie le tableau R (Ralentissement 30) ?", a:"Vitesse limitée à 30 km/h à partir de ce signal et jusqu'au signal de fin de ralentissement (tableau F). Vérifier que la vitesse est établie avant le tableau R.", tags:["ralentissement","tableau R","30"]},
+  {id:6,  cat:"procedures",     q:"Procédure en cas de SPAD (franchissement intempestif d'un signal d'arrêt) ?", a:"1. Arrêter immédiatement le train.\n2. Contacter le régulateur par radio.\n3. Ne pas reculer sans autorisation.\n4. Protéger si nécessaire.\n5. Rédiger un rapport circonstancié.\n6. Attendre les instructions.", tags:["SPAD","incident"]},
+  {id:7,  cat:"procedures",     q:"Vérifications avant départ d'un train fret ?", a:"1. Documents (LTA, liste véhicules, feuille de frein).\n2. Composition (longueur, masse, type de frein).\n3. Essai de frein (serrage/desserrage).\n4. Gabarit et chargement.\n5. Signaux de queue.", tags:["départ","fret","vérification"]},
+  {id:8,  cat:"procedures",     q:"Que faire en cas d'arrêt en pleine voie non prévu ?", a:"1. Positionner si possible en zone dégagée.\n2. Protéger le train (pétards si nécessaire).\n3. Contacter le régulateur immédiatement.\n4. Identifier la cause.\n5. Ne pas repartir sans autorisation.", tags:["arrêt","pleine voie"]},
+  {id:9,  cat:"procedures",     q:"Procédure lors de la prise en main d'un engin de traction ?", a:"1. Vérifier l'identité de l'engin (numéro, type).\n2. Contrôler le carnet de bord et signaler les anomalies.\n3. Vérifier les niveaux et équipements de sécurité.\n4. Tester les freins.\n5. Vérifier la radio sol-train.", tags:["prise en main","engin"]},
+  {id:10, cat:"urgences",       q:"Procédure en cas d'incendie à bord ?", a:"1. Arrêter le train en lieu dégagé si possible.\n2. Couper la traction.\n3. Alerter le régulateur (nature, position km).\n4. Déclencher l'alarme.\n5. Évacuer selon le protocole.\n6. Ne pas ouvrir les portes côté voie adjacente.", tags:["incendie","évacuation"]},
+  {id:11, cat:"urgences",       q:"Que faire en cas de personne sur la voie ?", a:"1. Freinage d'urgence immédiat.\n2. Klaxon continu.\n3. Ne pas relâcher le frein.\n4. Après arrêt : alerter le régulateur (position, circonstances).\n5. Ne pas descendre seul si risque électrique.\n6. Rédiger un rapport.", tags:["obstacle","personne"]},
+  {id:12, cat:"urgences",       q:"Que faire en cas de rupture d'attelage ?", a:"1. Arrêt d'urgence immédiat.\n2. Sécuriser la partie arrière (calage si nécessaire).\n3. Alerter le régulateur.\n4. Protéger les deux parties du train.\n5. Ne pas tenter de ressouder sans autorisation.", tags:["rupture attelage","urgence"]},
+  {id:13, cat:"lgv",            q:"Vitesse max en cas de perte de signalisation cabine sur LGV ?", a:"Réduire immédiatement à 30 km/h. Contacter le régulateur TGV. Attendre les instructions. Ne pas tenter de poursuivre à grande vitesse sans signalisation cab conforme.", tags:["LGV","signalisation cab"]},
+  {id:14, cat:"lgv",            q:"Quand déclencher le freinage d'urgence par radio (FU) sur LGV ?", a:"En cas de danger immédiat pour la circulation. Utiliser la commande FU de la radio bord. Si non-réponse, activer la poignée d'urgence. Maintenir la radio ouverte et contacter le régulateur.", tags:["LGV","FU","freinage"]},
+  {id:15, cat:"lgv",            q:"Que faire en cas de choc ou impact sur LGV ?", a:"1. Freinage d'urgence.\n2. Signaler au régulateur (nature, position, vitesse).\n3. Inspecter si arrêt.\n4. Ne pas repartir sans inspection et autorisation.\n5. Rapport détaillé obligatoire.", tags:["LGV","impact","choc"]},
+  {id:16, cat:"lgv",            q:"Qu'est-ce que le KVB et son rôle ?", a:"Contrôleur de Vitesse par Balises. Système de sécurité qui surveille la vitesse et commande un freinage d'urgence si le conducteur dépasse la vitesse autorisée ou franchit un signal d'arrêt. Actif sur ligne classique et LGV.", tags:["KVB","sécurité","vitesse"]},
+  {id:17, cat:"fret",           q:"Qu'est-ce que la feuille de frein et à quoi sert-elle ?", a:"Document indiquant le pourcentage de masse freinée du train. Permet de déterminer la distance de freinage et la vitesse maximale autorisée. Obligatoire avant tout départ.", tags:["fret","frein","document"]},
+  {id:18, cat:"fret",           q:"Quels sont les risques liés au transport de matières dangereuses (TMD) ?", a:"Vérifier les étiquettes de danger (panneaux orange, étiquettes ADR). En cas d'incident : périmètre de sécurité, alerter régulateur + pompiers. Ne pas fumer ni utiliser de flamme nue.", tags:["fret","TMD","danger"]},
+  {id:19, cat:"reglementation", q:"Qu'est-ce que le Règlement de Sécurité de l'Exploitation (RSE) ?", a:"Ensemble des règles applicables à la circulation des trains sur le RFN. Il définit les obligations des agents de conduite, les procédures en situation normale et dégradée, les signaux.", tags:["RSE","réglementation"]},
+  {id:20, cat:"reglementation", q:"Obligations du conducteur avant de prendre son service ?", a:"1. Vérifier son aptitude physique (alcool, fatigue, médicaments).\n2. Consulter les avis aux conducteurs (AC).\n3. Prendre connaissance des ralentissements et travaux.\n4. Vérifier les documents de bord.", tags:["prise de service"]},
+  {id:21, cat:"reglementation", q:"Que faire si un avis aux conducteurs impose une restriction non connue lors de la préparation ?", a:"Appliquer immédiatement la restriction dès lecture. Si découverte en route : appliquer dès que possible. Contacter le régulateur. Consigner dans le registre de bord.", tags:["AC","restriction"]},
+];
+
+/* ══ STATE ══ */
+let state = {
+  tab: 'home',
+  param: null,
+  openCard: null,
+  progress: {},
+  // flash
+  flashCat: 'all',
+  flashIdx: 0,
+  flashFlipped: false,
+  flashDone: false,
+  flashPool: [],
+  // quiz
+  quizPool: [],
+  quizChoices: [],
+  quizIdx: 0,
+  quizSel: null,
+  quizScore: 0,
+  quizDone: false,
+  // fiches
+  fichesCat: 'all',
+};
+
+/* ══ STORAGE ══ */
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem('rr_prog') || '{}'); } catch { return {}; }
+}
+function saveProgress() {
+  try { localStorage.setItem('rr_prog', JSON.stringify(state.progress)); } catch {}
+}
+function loadCards() {
+  try {
+    const extra = JSON.parse(localStorage.getItem('rr_cards') || '[]');
+    CARDS = [...CARDS, ...extra];
+  } catch {}
+}
+function saveCard(c) {
+  try {
+    const extra = JSON.parse(localStorage.getItem('rr_cards') || '[]');
+    extra.push(c);
+    localStorage.setItem('rr_cards', JSON.stringify(extra));
+  } catch {}
+}
+
+/* ══ HELPERS ══ */
+function lvlColor(n) { return n >= 3 ? '#2a9d8f' : n >= 1 ? '#c9a84c' : '#374151'; }
+function e(tag, attrs, ...children) {
+  let el = document.createElement(tag);
+  for (let [k,v] of Object.entries(attrs||{})) {
+    if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else el.setAttribute(k, v);
+  }
+  children.flat().forEach(c => {
+    if (c == null) return;
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+function h(tag, cls, ...ch) { return e(tag, {class:cls}, ...ch); }
+function div(cls, ...ch)    { return h('div', cls, ...ch); }
+function btn(cls, text, onclick) { let b = h('button', cls, text); b.onclick = onclick; return b; }
+
+function pbar(val, color='#c9a84c') {
+  let bg = div('pbar-bg');
+  let fg = div('pbar-fg');
+  fg.style.cssText = `background:${color};width:${Math.min(100,Math.round(val*100))}%`;
+  bg.appendChild(fg);
+  return bg;
+}
+function tags(arr) {
+  let w = div(''); w.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;';
+  arr.forEach(t => { let s = div('tag'); s.textContent = t; w.appendChild(s); });
+  return w;
+}
+function header(title, sub, back) {
+  let hd = div('hd');
+  if (back) { let b = e('button',{class:'hd-back'},'‹'); b.onclick = back; hd.appendChild(b); }
+  let info = div('');
+  let t = div('hd-title'); t.textContent = title; info.appendChild(t);
+  if (sub) { let s = div('hd-sub'); s.textContent = sub; info.appendChild(s); }
+  hd.appendChild(info);
+  return hd;
+}
+function catScroll(current, onSelect) {
+  let w = div('cat-scroll');
+  CATS.forEach(c => {
+    let b = div('cat-pill'); b.textContent = c.icon + ' ' + c.label;
+    if (c.id === current) { b.classList.add('active'); b.style.background = c.color; }
+    b.onclick = () => onSelect(c.id);
+    w.appendChild(b);
+  });
+  return w;
+}
+
+/* ══ RENDER ══ */
+function render() {
+  const wrap = document.getElementById('screen-wrap');
+  wrap.innerHTML = '';
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === state.tab));
+  if (state.openCard) { wrap.appendChild(renderCardDetail(state.openCard)); return; }
+  if (state.tab === 'home')   wrap.appendChild(renderHome());
+  if (state.tab === 'flash')  wrap.appendChild(renderFlash());
+  if (state.tab === 'quiz')   wrap.appendChild(renderQuiz());
+  if (state.tab === 'fiches') wrap.appendChild(renderFiches());
+  if (state.tab === 'add')    wrap.appendChild(renderAdd());
+  wrap.scrollTop = 0;
+}
+
+/* ── HOME ── */
+function renderHome() {
+  const mastered = Object.values(state.progress).filter(v => v >= 3).length;
+  const pct = CARDS.length ? mastered / CARDS.length : 0;
+  let sc = div('screen'); sc.style.padding = '0';
+
+  sc.appendChild(header('Rail Révision', 'CONDUCTEUR FRET · CLASSIQUE & LGV'));
+
+  let body = div(''); body.style.padding = '18px 16px 0';
+
+  // Hero
+  let hero = div('card'); hero.style.cssText = 'padding:20px;margin-bottom:18px;position:relative;overflow:hidden;';
+  let bg = div(''); bg.style.cssText = 'position:absolute;top:-16px;right:-10px;font-size:90px;opacity:.05;line-height:1;pointer-events:none;'; bg.textContent = '🚂';
+  let lbl = div('label'); lbl.style.color = '#6b7280'; lbl.textContent = 'Progression globale';
+  let pctEl = div(''); pctEl.style.cssText = "font-family:'Oswald',sans-serif;font-size:44px;font-weight:700;color:#c9a84c;line-height:1;"; pctEl.textContent = Math.round(pct*100) + '%';
+  let pbw = div(''); pbw.style.marginTop = '12px'; pbw.appendChild(pbar(pct));
+  let sub = div(''); sub.style.cssText = 'font-size:12px;color:#6b7280;margin-top:8px;'; sub.textContent = `${mastered} / ${CARDS.length} fiches maîtrisées`;
+  hero.append(bg, lbl, pctEl, pbw, sub);
+  body.appendChild(hero);
+
+  // Quick actions
+  let ql = div('label'); ql.style.color = '#6b7280'; ql.textContent = 'Entraînement'; body.appendChild(ql);
+  let grid = div('two-col'); grid.style.marginBottom = '22px';
+  [
+    {label:'Flashcards',icon:'🔄',sub:'Retourner les fiches',tab:'flash',color:'#c9a84c'},
+    {label:'Quiz',      icon:'⚡',sub:'Tester ses réflexes', tab:'quiz', color:'#e63946'},
+    {label:'Mes fiches',icon:'📚',sub:'Parcourir tout',      tab:'fiches',color:'#2a9d8f'},
+    {label:'Ajouter',   icon:'✏️',sub:'Créer une fiche',     tab:'add',  color:'#7b5ea7'},
+  ].forEach(a => {
+    let c = div('card'); c.style.cssText = 'padding:16px 14px;cursor:pointer;';
+    let ic = div(''); ic.style.cssText = 'font-size:28px;margin-bottom:8px;'; ic.textContent = a.icon;
+    let tl = div(''); tl.style.cssText = `font-family:'Oswald',sans-serif;font-size:16px;color:${a.color};font-weight:600;`; tl.textContent = a.label;
+    let sb = div(''); sb.style.cssText = 'font-size:11px;color:#6b7280;margin-top:3px;'; sb.textContent = a.sub;
+    c.append(ic, tl, sb);
+    c.onclick = () => navTo(a.tab);
+    grid.appendChild(c);
+  });
+  body.appendChild(grid);
+
+  // Categories
+  let cl = div('label'); cl.style.color = '#6b7280'; cl.textContent = 'Par catégorie'; body.appendChild(cl);
+  CATS.filter(c => c.id !== 'all').forEach(cat => {
+    const cc = CARDS.filter(c => c.cat === cat.id);
+    const done = cc.filter(c => (state.progress[c.id]||0) >= 3).length;
+    let row = div('fiche-row'); row.style.cssText = 'display:flex;align-items:center;cursor:pointer;';
+    let ico = div(''); ico.style.cssText = 'font-size:22px;margin-right:14px;flex-shrink:0;'; ico.textContent = cat.icon;
+    let info = div(''); info.style.flex = '1';
+    let nm = div(''); nm.style.cssText = "font-family:'Oswald',sans-serif;font-size:15px;color:#e5e7eb;font-weight:600;margin-bottom:6px;"; nm.textContent = cat.label;
+    info.append(nm, pbar(cc.length ? done/cc.length : 0, cat.color));
+    let cnt = div(''); cnt.style.cssText = 'font-size:12px;color:#6b7280;margin-left:14px;'; cnt.textContent = `${done}/${cc.length}`;
+    let arr = div(''); arr.style.cssText = 'color:#6b7280;margin-left:8px;font-size:18px;'; arr.textContent = '›';
+    row.append(ico, info, cnt, arr);
+    row.onclick = () => { state.fichesCat = cat.id; navTo('fiches'); };
+    body.appendChild(row);
+  });
+
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ── FICHES ── */
+function renderFiches() {
+  let cat = state.fichesCat || 'all';
+  let filtered = cat === 'all' ? CARDS : CARDS.filter(c => c.cat === cat);
+  let sc = div('screen');
+  sc.appendChild(header('Fiches', filtered.length + ' fiche' + (filtered.length > 1 ? 's' : '')));
+  sc.appendChild(catScroll(cat, c => { state.fichesCat = c; render(); }));
+  let body = div(''); body.style.padding = '4px 16px';
+  filtered.forEach(card => {
+    let row = div('fiche-row');
+    let info = div(''); info.style.flex = '1';
+    let q = div(''); q.style.cssText = 'font-size:14px;color:#e5e7eb;line-height:1.5;margin-bottom:8px;'; q.textContent = card.q;
+    info.append(q, tags(card.tags));
+    let dot = div('dot-lvl'); dot.style.background = lvlColor(state.progress[card.id]||0);
+    row.append(info, dot);
+    row.onclick = () => { state.openCard = card; render(); };
+    body.appendChild(row);
+  });
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ── CARD DETAIL ── */
+function renderCardDetail(card) {
+  let shown = false;
+  let sc = div('screen');
+  sc.appendChild(header('Fiche', null, () => { state.openCard = null; render(); }));
+  let body = div(''); body.style.padding = '16px';
+
+  let qbox = div('card'); qbox.style.cssText = 'padding:20px;margin-bottom:16px;';
+  let ql = div('label'); ql.style.color = '#c9a84c'; ql.textContent = 'Question';
+  let qt = div(''); qt.style.cssText = 'font-size:16px;color:#f3f4f6;line-height:1.6;'; qt.textContent = card.q;
+  qbox.append(ql, qt, tags(card.tags));
+  body.appendChild(qbox);
+
+  let btnReveal = e('button', {class:'btn-gold'}, 'Voir la réponse');
+  body.appendChild(btnReveal);
+
+  btnReveal.onclick = () => {
+    btnReveal.remove();
+    let abox = div('ans-box');
+    let al = div('label'); al.style.color = '#2a9d8f'; al.textContent = 'Réponse';
+    let at = div('ans-text'); at.textContent = card.a;
+    abox.append(al, at);
+    body.appendChild(abox);
+
+    let lbl2 = div(''); lbl2.style.cssText = 'font-size:12px;color:#6b7280;text-align:center;margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;'; lbl2.textContent = 'Je savais ?';
+    let grid = div('dots-grid');
+    [{label:'Non 😓',v:0,cls:'btn-red'},{label:'Approx 🤔',v:1,cls:'btn-gold2'},{label:'Oui ! ✓',v:3,cls:'btn-teal'}].forEach(b => {
+      let bt = e('button', {class:b.cls}, b.label);
+      bt.onclick = () => {
+        state.progress[card.id] = b.v;
+        saveProgress();
+        state.openCard = null;
+        render();
+      };
+      grid.appendChild(bt);
+    });
+    body.append(lbl2, grid);
+  };
+
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ── FLASHCARDS ── */
+function initFlash() {
+  let pool = (state.flashCat === 'all' ? CARDS : CARDS.filter(c => c.cat === state.flashCat)).slice().sort(() => Math.random()-.5);
+  state.flashPool = pool;
+  state.flashIdx = 0;
+  state.flashFlipped = false;
+  state.flashDone = false;
+}
+function renderFlash() {
+  if (!state.flashPool.length) initFlash();
+  let sc = div('screen');
+
+  if (state.flashDone) {
+    sc.appendChild(header('Flashcards', null));
+    let ds = div('done-screen');
+    let em = div('done-emoji'); em.textContent = '🎯';
+    let sc2 = div('done-score'); sc2.textContent = 'Terminé !';
+    let sb = div('done-sub'); sb.textContent = state.flashPool.length + ' fiches passées en revue';
+    let br = e('button', {class:'btn-gold'}, 'Recommencer'); br.style.marginTop='28px';
+    br.onclick = () => { initFlash(); render(); };
+    ds.append(em, sc2, sb, br);
+    sc.appendChild(ds);
+    return sc;
+  }
+
+  const card = state.flashPool[state.flashIdx];
+  sc.appendChild(header('Flashcards', `${state.flashIdx+1} / ${state.flashPool.length}`));
+  sc.appendChild(catScroll(state.flashCat, c => { state.flashCat = c; initFlash(); render(); }));
+  let pbw = div(''); pbw.style.cssText = 'margin:0 16px 12px;';
+  pbw.appendChild(pbar(state.flashIdx / state.flashPool.length));
+  sc.appendChild(pbw);
+
+  let body = div(''); body.style.padding = '0 16px';
+
+  let fc = div('flash-card ' + (state.flashFlipped ? 'flash-a' : 'flash-q'));
+  let fl = div('label'); fl.style.color = state.flashFlipped ? '#2a9d8f' : '#c9a84c';
+  fl.textContent = state.flashFlipped ? 'Réponse — toucher pour cacher' : 'Question — toucher pour révéler';
+  let ft = div(''); ft.style.cssText = 'font-size:16px;color:' + (state.flashFlipped?'#d1fae5':'#f3f4f6') + ';line-height:1.75;white-space:pre-line;';
+  ft.textContent = state.flashFlipped ? card.a : card.q;
+  fc.append(fl, ft, tags(card.tags));
+  fc.onclick = () => { state.flashFlipped = !state.flashFlipped; render(); };
+  body.appendChild(fc);
+
+  if (state.flashFlipped) {
+    let grid = div('dots-grid');
+    [{label:'Non 😓',v:0,cls:'btn-red'},{label:'Approx 🤔',v:1,cls:'btn-gold2'},{label:'Oui ! ✓',v:3,cls:'btn-teal'}].forEach(b => {
+      let bt = e('button', {class:b.cls}, b.label);
+      bt.onclick = () => {
+        state.progress[card.id] = b.v; saveProgress();
+        if (state.flashIdx + 1 >= state.flashPool.length) state.flashDone = true;
+        else { state.flashIdx++; state.flashFlipped = false; }
+        render();
+      };
+      grid.appendChild(bt);
+    });
+    body.appendChild(grid);
+  } else {
+    let br = e('button', {class:'btn-gold'}, 'Révéler la réponse'); br.style.marginTop='16px';
+    br.onclick = () => { state.flashFlipped = true; render(); };
+    body.appendChild(br);
+  }
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ── QUIZ ── */
+function buildChoices(card) {
+  const others = CARDS.filter(x => x.id !== card.id).sort(() => Math.random()-.5).slice(0,3);
+  return [...others.map(x => ({text: x.a.slice(0,90)+(x.a.length>90?'…':''), correct:false})),
+          {text: card.a.slice(0,90)+(card.a.length>90?'…':''), correct:true}].sort(() => Math.random()-.5);
+}
+function initQuiz() {
+  state.quizPool = [...CARDS].sort(() => Math.random()-.5).slice(0,10);
+  state.quizChoices = state.quizPool.map(c => buildChoices(c));
+  state.quizIdx = 0; state.quizSel = null; state.quizScore = 0; state.quizDone = false;
+}
+function renderQuiz() {
+  if (!state.quizPool.length) initQuiz();
+  let sc = div('screen');
+  if (state.quizDone) {
+    sc.appendChild(header('Quiz', null));
+    let ds = div('done-screen');
+    let s = state.quizScore, t = state.quizPool.length;
+    let em = div('done-emoji'); em.textContent = s>=8?'🏆':s>=5?'👍':'📖';
+    let sc2 = div('done-score'); sc2.textContent = `${s} / ${t}`;
+    let sb = div('done-sub'); sb.textContent = s>=8?'Excellent !':s>=5?'Bien, continuez !':'À retravailler…';
+    let br = e('button',{class:'btn-gold'},'Nouveau Quiz'); br.style.marginTop='28px';
+    br.onclick = () => { initQuiz(); render(); };
+    ds.append(em, sc2, sb, br);
+    sc.appendChild(ds);
+    return sc;
+  }
+  const card = state.quizPool[state.quizIdx];
+  sc.appendChild(header('Quiz', `Q${state.quizIdx+1}/${state.quizPool.length} · Score : ${state.quizScore}`));
+  let pbw = div(''); pbw.style.cssText='margin:0 16px 12px;';
+  pbw.appendChild(pbar(state.quizIdx/state.quizPool.length,'#e63946'));
+  sc.appendChild(pbw);
+  let body = div(''); body.style.padding='0 16px';
+  let qbox = div('card'); qbox.style.cssText='padding:20px;margin-bottom:16px;';
+  let ql = div('label'); ql.style.color='#e63946'; ql.textContent='Question';
+  let qt = div(''); qt.style.cssText='font-size:15px;color:#f3f4f6;line-height:1.6;'; qt.textContent=card.q;
+  qbox.append(ql,qt); body.appendChild(qbox);
+
+  state.quizChoices[state.quizIdx].forEach(ch => {
+    let b = e('button',{class:'choice'}, ch.text);
+    if (state.quizSel) {
+      if (ch.correct) b.classList.add('correct');
+      else if (ch === state.quizSel) b.classList.add('wrong');
+    }
+    b.onclick = () => {
+      if (state.quizSel) return;
+      state.quizSel = ch;
+      if (ch.correct) state.quizScore++;
+      state.progress[card.id] = ch.correct ? Math.min((state.progress[card.id]||0)+1,3) : 0;
+      saveProgress(); render();
+      setTimeout(() => {
+        if (state.quizIdx+1 >= state.quizPool.length) state.quizDone = true;
+        else { state.quizIdx++; state.quizSel=null; }
+        render();
+      }, 1100);
+    };
+    body.appendChild(b);
+  });
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ── ADD CARD ── */
+function renderAdd() {
+  let sc = div('screen');
+  sc.appendChild(header('Nouvelle fiche','AJOUTER UNE PROCÉDURE'));
+  let body = div(''); body.style.padding='16px';
+
+  let cl = div('label'); cl.style.color='#6b7280'; cl.textContent='Catégorie'; body.appendChild(cl);
+  let catSel = 'procedures';
+  let catDiv = div('cat-scroll'); catDiv.style.cssText='display:flex;gap:8px;flex-wrap:wrap;padding:0;margin-bottom:20px;';
+  CATS.filter(c=>c.id!=='all').forEach(c => {
+    let b = div('cat-pill'); b.textContent=c.icon+' '+c.label;
+    if (c.id===catSel){b.classList.add('active');b.style.background=c.color;}
+    b.onclick=()=>{
+      catSel=c.id;
+      catDiv.querySelectorAll('.cat-pill').forEach(p=>{p.classList.remove('active');p.style.background='';});
+      b.classList.add('active'); b.style.background=c.color;
+    };
+    catDiv.appendChild(b);
+  });
+  body.appendChild(catDiv);
+
+  let ql=div('label');ql.style.color='#6b7280';ql.textContent='Question';body.appendChild(ql);
+  let qi=e('textarea',{class:'inp',rows:'3',placeholder:'Ex: Que faire en cas de rupture d\'attelage ?'});
+  qi.style.marginBottom='16px'; body.appendChild(qi);
+
+  let al=div('label');al.style.color='#6b7280';al.textContent='Réponse';body.appendChild(al);
+  let ai=e('textarea',{class:'inp',rows:'5',placeholder:'Ex: 1. Arrêter le train…\n2. Protéger…'});
+  ai.style.marginBottom='16px'; body.appendChild(ai);
+
+  let tl=div('label');tl.style.color='#6b7280';tl.textContent='Tags (séparés par virgule)';body.appendChild(tl);
+  let ti=e('input',{class:'inp',type:'text',placeholder:'urgence, fret, procédure'});
+  ti.style.marginBottom='24px'; body.appendChild(ti);
+
+  let saveBtn=e('button',{class:'btn-gold'},'Enregistrer la fiche');
+  saveBtn.onclick=()=>{
+    if(!qi.value.trim()||!ai.value.trim()) return;
+    const nc={id:Date.now(),cat:catSel,q:qi.value.trim(),a:ai.value.trim(),tags:ti.value.split(',').map(t=>t.trim()).filter(Boolean)};
+    CARDS.push(nc); saveCard(nc);
+    saveBtn.textContent='✓ Fiche enregistrée !'; saveBtn.style.background='#2a9d8f';
+    qi.value=''; ai.value=''; ti.value='';
+    setTimeout(()=>{saveBtn.textContent='Enregistrer la fiche';saveBtn.style.background='';},2200);
+  };
+  body.appendChild(saveBtn);
+  sc.appendChild(body);
+  return sc;
+}
+
+/* ══ NAV ══ */
+function navTo(tab, param) {
+  state.tab = tab;
+  state.param = param || null;
+  state.openCard = null;
+  if (tab === 'fiches' && param) state.fichesCat = param;
+  render();
+}
+
+/* ══ BOOT ══ */
+loadCards();
+state.progress = loadProgress();
+render();
+</script>
+</body>
+</html>
